@@ -14,15 +14,15 @@ function addActionRow(sensoRelacionado = '') {
     const tr = document.createElement('tr');
 
     tr.innerHTML = `
-        <td>${actionCounter}</td>
-        <td><input type="text" class="ap-what" placeholder="Ação..."></td>
-        <td><input type="text" class="ap-why" placeholder="Motivo..."></td>
-        <td><input type="text" class="ap-who" placeholder="Responsável..."></td>
-        <td><input type="date" class="ap-when"></td>
-        <td><input type="text" class="ap-where" placeholder="Local..."></td>
-        <td><input type="text" class="ap-how" placeholder="Método..."></td>
-        <td><input type="text" class="ap-howmuch" placeholder="Custo..."></td>
-        <td>
+        <td data-label="#">${actionCounter}</td>
+        <td data-label="What (O quê?)"><input type="text" class="ap-what" placeholder="Ação..."></td>
+        <td data-label="Why (Por quê?)"><input type="text" class="ap-why" placeholder="Motivo..."></td>
+        <td data-label="Who (Quem?)"><input type="text" class="ap-who" placeholder="Responsável..."></td>
+        <td data-label="When (Quando?)"><input type="date" class="ap-when"></td>
+        <td data-label="Where (Onde?)"><input type="text" class="ap-where" placeholder="Local..."></td>
+        <td data-label="How (Como?)"><input type="text" class="ap-how" placeholder="Método..."></td>
+        <td data-label="How Much (Quanto?)"><input type="text" class="ap-howmuch" placeholder="Custo..."></td>
+        <td data-label="Senso">
             <select class="ap-senso">
                 <option value="">Selecione</option>
                 <option value="1S" ${sensoRelacionado === '1S' ? 'selected' : ''}>1S</option>
@@ -33,14 +33,14 @@ function addActionRow(sensoRelacionado = '') {
                 <option value="Geral" ${sensoRelacionado === 'Geral' ? 'selected' : ''}>Geral</option>
             </select>
         </td>
-        <td>
+        <td data-label="Status">
             <select class="ap-status">
                 <option value="A fazer">A fazer</option>
                 <option value="Em andamento">Em andamento</option>
                 <option value="Concluído">Concluído</option>
             </select>
         </td>
-        <td class="text-center">
+        <td data-label="Remover" class="text-center action-td">
             <button type="button" class="btn-remove" title="Remover" onclick="this.closest('tr').remove()">✕</button>
         </td>
     `;
