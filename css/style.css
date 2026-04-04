@@ -405,6 +405,27 @@ td input, td select {
     border-radius: 4px;
 }
 
+/* Footer */
+.main-footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+    font-size: 0.9rem;
+}
+
+.main-footer a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.main-footer a:hover {
+    color: #ffd180;
+    text-decoration: underline;
+}
+
 /* Utilities */
 .text-center { text-align: center; }
 
