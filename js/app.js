@@ -85,6 +85,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Mobile Results Toggle Logic
+    const mobileToggle = document.getElementById('mobile-results-toggle');
+    const resultsContent = document.getElementById('results-content');
+
+    mobileToggle.addEventListener('click', () => {
+        resultsContent.classList.toggle('active');
+        mobileToggle.classList.toggle('active');
+
+        // Need to resize the chart if it becomes visible
+        if (resultsContent.classList.contains('active') && radarChartInstance) {
+            radarChartInstance.resize();
+        }
+    });
+
     // Make state available globally for pdf.js and action-plan.js
     window.appState = {
         SENSOS,
@@ -268,6 +282,11 @@ function updateResults() {
     const badge = document.getElementById('overall-badge');
     badge.textContent = results.geral.avaliacao.texto;
     badge.className = `badge ${results.geral.avaliacao.classe}`;
+
+    // Update Mobile Header Badge
+    const mobileBadge = document.getElementById('overall-score-mobile-badge');
+    mobileBadge.textContent = `${results.geral.pontuacao} pts`;
+    mobileBadge.className = `badge ${results.geral.avaliacao.classe}`;
 
     // Update Sensos Summary
     const summaryContainer = document.getElementById('sensos-summary');
