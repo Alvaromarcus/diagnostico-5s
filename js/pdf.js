@@ -108,6 +108,25 @@ function generatePDF() {
     });
     currentY = doc.lastAutoTable.finalY + 10;
 
+    // Radar Chart
+    const canvas = document.getElementById('radar-chart');
+    if (canvas) {
+        const radarImgData = canvas.toDataURL('image/png');
+        // Radar centralizado, largura 120mm, altura proporcional
+        const radarWidth = 120;
+        const radarHeight = (canvas.height / canvas.width) * radarWidth;
+        const radarX = (pageWidth - radarWidth) / 2;
+
+        doc.addImage(radarImgData, 'PNG', radarX, currentY, radarWidth, radarHeight);
+        currentY += radarHeight + 10;
+
+        // Verifica quebra de página
+        if (currentY > doc.internal.pageSize.height - 20) {
+            doc.addPage();
+            currentY = 20;
+        }
+    }
+
     // Resultado Geral em Destaque
     doc.setFillColor(...secondaryColor);
     doc.rect(margin, currentY, pageWidth - (margin*2), 20, 'F');
@@ -172,8 +191,59 @@ function generatePDF() {
 
         currentY = doc.lastAutoTable.finalY + 10;
 
+        // Inserir fotos do Senso atual
+        senso.perguntas.forEach((q, i) => {
+            if (window.appState.fotos && window.appState.fotos[q.id]) {
+                const imgData = window.appState.fotos[q.id];
+
+                // Pegar dimensões originais da imagem de forma síncrona usando getImageProperties do jsPDF
+                const imgProps = doc.getImageProperties(imgData);
+
+                // Lógica de proporção
+                const maxImgWidth = pageWidth - (margin * 2);
+                let imgWidth = maxImgWidth;
+                let imgHeight = (imgProps.height / imgProps.width) * imgWidth;
+
+                // Limitar altura a 140mm
+                if (imgHeight > 140) {
+                    imgHeight = 140;
+                    imgWidth = (imgProps.width / imgProps.height) * imgHeight;
+                }
+
+                // Verificar quebra de página antes de inserir
+                if (currentY + imgHeight + 15 > doc.internal.pageSize.height - margin) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+
+                const imgX = (pageWidth - imgWidth) / 2;
+
+                // Adicionar texto indicando de qual pergunta é a foto
+                doc.setFontSize(10);
+                doc.setTextColor(...primaryColor);
+                doc.text(`Foto da Pergunta ${i+1}:`, margin, currentY);
+                currentY += 5;
+
+                // Adicionar borda
+                doc.setDrawColor(200, 200, 200); // Cinza
+                doc.setLineWidth(0.5);
+                doc.rect(imgX, currentY, imgWidth, imgHeight);
+
+                // Adicionar Imagem
+                doc.addImage(imgData, 'PNG', imgX, currentY, imgWidth, imgHeight);
+                currentY += imgHeight + 5;
+
+                // Adicionar Legenda
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                doc.text("📷 Foto registrada", pageWidth / 2, currentY, { align: 'center' });
+
+                currentY += 15;
+            }
+        });
+
         // Check page break manually if needed, autotable usually handles it
-        // but if we are adding space between tables, we might go over
+        // mas as fotos podem ter alterado o currentY significativamente
         if (currentY > doc.internal.pageSize.height - 20 && idx < window.appState.SENSOS.length - 1) {
             doc.addPage();
             currentY = 20;

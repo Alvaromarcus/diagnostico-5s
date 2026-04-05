@@ -62,6 +62,7 @@ const SENSOS = [
 // State
 let respostas = {}; // { qId: 'SIM' | 'NAO' | 'NA' }
 let observacoes = {}; // { qId: 'text' }
+let fotos = {}; // { qId: 'base64_string' }
 let radarChartInstance = null;
 
 // --- Initialize Application ---
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         SENSOS,
         respostas,
         observacoes,
+        fotos,
         getResults: calculateAllResults
     };
 });
@@ -148,6 +150,17 @@ function renderQuestions() {
                     </div>
                     <div class="obs-group">
                         <textarea id="obs-${q.id}" placeholder="Observações..."></textarea>
+
+                        <div class="photo-upload-container">
+                            <label class="btn-anexar-foto" for="foto-${q.id}">
+                                📷 Anexar foto
+                            </label>
+                            <input type="file" id="foto-${q.id}" accept="image/*" class="hidden-file-input">
+                            <div class="thumbnail-container hidden" id="thumb-container-${q.id}">
+                                <img id="thumb-img-${q.id}" src="" alt="Thumbnail">
+                                <button type="button" class="btn-remove-foto" id="btn-remove-foto-${q.id}">✕</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -172,6 +185,47 @@ function renderQuestions() {
         ta.addEventListener('input', (e) => {
             const qId = e.target.id.replace('obs-', '');
             observacoes[qId] = e.target.value;
+        });
+    });
+
+    // Event listeners for photo upload
+    document.querySelectorAll('input[type="file"][id^="foto-"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const qId = e.target.id.replace('foto-', '');
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64String = event.target.result;
+                    fotos[qId] = base64String;
+
+                    // Show thumbnail
+                    const thumbContainer = document.getElementById(`thumb-container-${qId}`);
+                    const thumbImg = document.getElementById(`thumb-img-${qId}`);
+                    thumbImg.src = base64String;
+                    thumbContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    // Event listeners for remove photo buttons
+    document.querySelectorAll('.btn-remove-foto').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const qId = e.target.id.replace('btn-remove-foto-', '');
+
+            // Remove from state
+            delete fotos[qId];
+
+            // Clear input
+            document.getElementById(`foto-${qId}`).value = '';
+
+            // Hide thumbnail
+            const thumbContainer = document.getElementById(`thumb-container-${qId}`);
+            thumbContainer.classList.add('hidden');
+            document.getElementById(`thumb-img-${qId}`).src = '';
         });
     });
 }
@@ -351,10 +405,23 @@ function handleReset() {
         // Reset state
         respostas = {};
         observacoes = {};
+        fotos = {};
+        // Also update window.appState
+        window.appState.fotos = fotos;
 
         // Reset UI form elements
         document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
         document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+
+        // Reset file inputs and thumbnails
+        document.querySelectorAll('input[type="file"][id^="foto-"]').forEach(input => {
+            input.value = '';
+        });
+        document.querySelectorAll('.thumbnail-container').forEach(container => {
+            container.classList.add('hidden');
+            const img = container.querySelector('img');
+            if (img) img.src = '';
+        });
         document.getElementById('turno').value = '';
         document.getElementById('setor').value = '';
         document.getElementById('auditores').value = '';
