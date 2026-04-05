@@ -119,9 +119,18 @@ function generatePDF() {
         doc.text("Gráfico de Radar — Visão Geral dos Sensos", pageWidth / 2, currentY, { align: 'center' });
         currentY += 10;
 
-        // Force canvas visibility and rendering for mobile
-        const originalDisplay = canvas.style.display;
-        canvas.style.display = 'block';
+        // Salvar estado original de TODOS os ancestrais ocultos
+        const hiddenAncestors = [];
+        let el = canvas.parentElement;
+        while (el) {
+            if (getComputedStyle(el).display === 'none') {
+                hiddenAncestors.push({ el, display: el.style.display });
+                el.style.display = 'block';
+            }
+            el = el.parentElement;
+        }
+
+        // Forçar redimensionamento e atualização do chart
         if (window.appState && window.appState.radarChartInstance) {
             window.appState.radarChartInstance.resize();
             window.appState.radarChartInstance.update();
@@ -129,10 +138,11 @@ function generatePDF() {
 
         const radarImgData = canvas.toDataURL('image/png');
 
-        // Restore original display
-        canvas.style.display = originalDisplay;
+        // Restaurar estado original de todos os ancestrais
+        hiddenAncestors.forEach(({ el, display }) => {
+            el.style.display = display;
+        });
 
-        // Ocupar largura total útil da página (aprox. 182mm)
         const radarWidth = pageWidth - (margin * 2);
         const radarHeight = (canvas.height / canvas.width) * radarWidth;
         const radarX = (pageWidth - radarWidth) / 2;
