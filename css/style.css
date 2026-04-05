@@ -146,7 +146,6 @@ input:focus, select:focus, textarea:focus {
     border: 1px solid var(--border-color);
     margin-bottom: 1rem;
     border-radius: 4px;
-    overflow: hidden;
 }
 
 .accordion-header {
@@ -255,6 +254,7 @@ input:focus, select:focus, textarea:focus {
     align-items: center;
     gap: 1rem;
     margin-top: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .btn-anexar-foto {
