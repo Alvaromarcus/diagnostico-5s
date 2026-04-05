@@ -613,16 +613,15 @@ td input, td select {
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 1rem;
-        background: #f9f9f9;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         position: relative;
     }
 
     #action-plan-table td {
         border: none;
         padding: 0.5rem 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        display: block;
     }
 
     #action-plan-table td::before {
@@ -633,6 +632,7 @@ td input, td select {
     }
 
     #action-plan-table td.action-td {
+        display: flex;
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
