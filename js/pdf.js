@@ -111,20 +111,22 @@ function generatePDF() {
     // Radar Chart
     const canvas = document.getElementById('radar-chart');
     if (canvas) {
+        doc.addPage();
+        currentY = 20;
+
+        doc.setFontSize(12);
+        doc.setTextColor(...primaryColor);
+        doc.text("Gráfico de Radar — Visão Geral dos Sensos", pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+
         const radarImgData = canvas.toDataURL('image/png');
-        // Radar centralizado, largura 120mm, altura proporcional
-        const radarWidth = 120;
+        // Ocupar largura total útil da página (aprox. 182mm)
+        const radarWidth = pageWidth - (margin * 2);
         const radarHeight = (canvas.height / canvas.width) * radarWidth;
         const radarX = (pageWidth - radarWidth) / 2;
 
         doc.addImage(radarImgData, 'PNG', radarX, currentY, radarWidth, radarHeight);
         currentY += radarHeight + 10;
-
-        // Verifica quebra de página
-        if (currentY > doc.internal.pageSize.height - 20) {
-            doc.addPage();
-            currentY = 20;
-        }
     }
 
     // Resultado Geral em Destaque
@@ -144,6 +146,7 @@ function generatePDF() {
     doc.text("Detalhamento por Senso", pageWidth / 2, currentY, { align: 'center' });
     currentY += 10;
 
+    let photoCounter = 1;
     window.appState.SENSOS.forEach((senso, idx) => {
         const resultadoSenso = results.sensos[idx];
 
@@ -234,9 +237,10 @@ function generatePDF() {
                 currentY += imgHeight + 5;
 
                 // Adicionar Legenda
-                doc.setFontSize(8);
-                doc.setTextColor(100, 100, 100);
-                doc.text("📷 Foto registrada", pageWidth / 2, currentY, { align: 'center' });
+                doc.setFontSize(9);
+                doc.setTextColor(102, 102, 102);
+                doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY, { align: 'center' });
+                photoCounter++;
 
                 currentY += 15;
             }
