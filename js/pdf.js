@@ -119,7 +119,19 @@ function generatePDF() {
         doc.text("Gráfico de Radar — Visão Geral dos Sensos", pageWidth / 2, currentY, { align: 'center' });
         currentY += 10;
 
+        // Force canvas visibility and rendering for mobile
+        const originalDisplay = canvas.style.display;
+        canvas.style.display = 'block';
+        if (window.appState && window.appState.radarChartInstance) {
+            window.appState.radarChartInstance.resize();
+            window.appState.radarChartInstance.update();
+        }
+
         const radarImgData = canvas.toDataURL('image/png');
+
+        // Restore original display
+        canvas.style.display = originalDisplay;
+
         // Ocupar largura total útil da página (aprox. 182mm)
         const radarWidth = pageWidth - (margin * 2);
         const radarHeight = (canvas.height / canvas.width) * radarWidth;

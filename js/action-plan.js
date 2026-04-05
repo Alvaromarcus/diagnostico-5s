@@ -15,13 +15,13 @@ function addActionRow(sensoRelacionado = '') {
 
     tr.innerHTML = `
         <td data-label="#">${actionCounter}</td>
-        <td data-label="What (O quê?)"><input type="text" class="ap-what" placeholder="Ação..."></td>
-        <td data-label="Why (Por quê?)"><input type="text" class="ap-why" placeholder="Motivo..."></td>
-        <td data-label="Who (Quem?)"><input type="text" class="ap-who" placeholder="Responsável..."></td>
-        <td data-label="When (Quando?)"><input type="date" class="ap-when"></td>
-        <td data-label="Where (Onde?)"><input type="text" class="ap-where" placeholder="Local..."></td>
-        <td data-label="How (Como?)"><input type="text" class="ap-how" placeholder="Método..."></td>
-        <td data-label="How Much (Quanto?)"><input type="text" class="ap-howmuch" placeholder="Custo..."></td>
+        <td data-label="O Quê? (What)"><input type="text" class="ap-what" placeholder="Ação..."></td>
+        <td data-label="Por Quê? (Why)"><input type="text" class="ap-why" placeholder="Motivo..."></td>
+        <td data-label="Quem? (Who)"><input type="text" class="ap-who" placeholder="Responsável..."></td>
+        <td data-label="Quando? (When)"><input type="date" class="ap-when"></td>
+        <td data-label="Onde? (Where)"><input type="text" class="ap-where" placeholder="Local..."></td>
+        <td data-label="Como? (How)"><input type="text" class="ap-how" placeholder="Método..."></td>
+        <td data-label="Quanto? (How Much)"><input type="text" class="ap-howmuch" placeholder="Custo..."></td>
         <td data-label="Senso">
             <select class="ap-senso">
                 <option value="">Selecione</option>

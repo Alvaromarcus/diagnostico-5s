@@ -106,7 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
         respostas,
         observacoes,
         fotos,
-        getResults: calculateAllResults
+        getResults: calculateAllResults,
+        get radarChartInstance() { return radarChartInstance; }
     };
 });
 
@@ -212,13 +213,36 @@ function renderQuestions() {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const base64String = event.target.result;
-                    fotos[qId] = base64String;
 
-                    // Show thumbnail
-                    const thumbContainer = document.getElementById(`thumb-container-${qId}`);
-                    const thumbImg = document.getElementById(`thumb-img-${qId}`);
-                    thumbImg.src = base64String;
-                    thumbContainer.classList.remove('hidden');
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1200;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height = Math.round(height * (MAX_WIDTH / width));
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                        fotos[qId] = compressedBase64;
+
+                        // Show thumbnail
+                        const thumbContainer = document.getElementById(`thumb-container-${qId}`);
+                        const thumbImg = document.getElementById(`thumb-img-${qId}`);
+                        thumbImg.src = compressedBase64;
+                        thumbContainer.classList.remove('hidden');
+                    };
+                    img.src = base64String;
                 };
                 reader.readAsDataURL(file);
             }
