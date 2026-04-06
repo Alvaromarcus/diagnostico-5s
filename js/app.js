@@ -53,7 +53,7 @@ const SENSOS = [
         { id: 's5q1', texto: 'As iluminações desnecessárias estão sendo apagadas após a saída do local?', positiva: 'SIM' },
         { id: 's5q2', texto: 'Os equipamentos estão sendo desligados nos horários em que não há atividades?', positiva: 'SIM' },
         { id: 's5q3', texto: 'São deixadas portas de armários e gavetas abertas?', positiva: 'NAO' },
-        { id: 's5q4', texto: 'Os materiais de uso comum, quando não estão sendo mais utilizados, são colocados nos locais determinados?', positiva: 'NAO' },
+        { id: 's5q4', texto: 'Os materiais de uso comum, quando não estão sendo mais utilizados, são colocados nos locais determinados?', positiva: 'SIM' },
         { id: 's5q5', texto: 'Os colaboradores demonstram se importar com o cumprimento dos requisitos do programa 5S?', positiva: 'SIM' },
       ]
     }
