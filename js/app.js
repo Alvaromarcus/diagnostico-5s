@@ -103,9 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make state available globally for pdf.js and action-plan.js
     window.appState = {
         SENSOS,
-        respostas,
-        observacoes,
-        fotos,
+        get respostas() { return respostas; },
+        get observacoes() { return observacoes; },
+        get fotos() { return fotos; },
         getResults: calculateAllResults,
         get radarChartInstance() { return radarChartInstance; }
     };
@@ -449,8 +449,6 @@ function handleReset() {
         respostas = {};
         observacoes = {};
         fotos = {};
-        // Also update window.appState
-        window.appState.fotos = fotos;
 
         // Reset UI form elements
         document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
