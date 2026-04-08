@@ -9,7 +9,7 @@ const SENSOS = [
         { id: 's1q1', texto: 'Existem materiais e/ou utensílios que não estão sendo utilizados sobre as máquinas ou armários?', positiva: 'NAO' },
         { id: 's1q2', texto: 'Existem objetos desnecessários nos armários?', positiva: 'NAO' },
         { id: 's1q3', texto: 'Há evidências de desperdícios na área (energia, papel, materiais de consumo)?', positiva: 'NAO' },
-        { id: 's1q4', texto: 'Encontrados na área somente paletes e caixas em uso na área?', positiva: 'SIM' },
+        { id: 's1q4', texto: 'Encontrados na área somente paletes e caixas em uso?', positiva: 'SIM' },
         { id: 's1q5', texto: 'Os equipamentos, ferramentas e utensílios que estão em desuso, estão armazenados em locais apropriados?', positiva: 'SIM' },
       ]
     },
