@@ -119,18 +119,9 @@ function generatePDF() {
         doc.text("Gráfico de Radar — Visão Geral dos Sensos", pageWidth / 2, currentY, { align: 'center' });
         currentY += 10;
 
-        // Salvar estado original de TODOS os ancestrais ocultos
-        const hiddenAncestors = [];
-        let el = canvas.parentElement;
-        while (el) {
-            if (getComputedStyle(el).display === 'none') {
-                hiddenAncestors.push({ el, display: el.style.display });
-                el.style.display = 'block';
-            }
-            el = el.parentElement;
-        }
-
-        // Forçar redimensionamento e atualização do chart
+        // Force canvas visibility and rendering for mobile
+        const originalDisplay = canvas.style.display;
+        canvas.style.display = 'block';
         if (window.appState && window.appState.radarChartInstance) {
             window.appState.radarChartInstance.resize();
             window.appState.radarChartInstance.update();
@@ -138,11 +129,10 @@ function generatePDF() {
 
         const radarImgData = canvas.toDataURL('image/png');
 
-        // Restaurar estado original de todos os ancestrais
-        hiddenAncestors.forEach(({ el, display }) => {
-            el.style.display = display;
-        });
+        // Restore original display
+        canvas.style.display = originalDisplay;
 
+        // Ocupar largura total útil da página (aprox. 182mm)
         const radarWidth = pageWidth - (margin * 2);
         const radarHeight = (canvas.height / canvas.width) * radarWidth;
         const radarX = (pageWidth - radarWidth) / 2;
@@ -218,59 +208,118 @@ function generatePDF() {
 
         // Inserir fotos do Senso atual
         senso.perguntas.forEach((q, i) => {
-            if (window.appState.fotos && window.appState.fotos[q.id] && window.appState.fotos[q.id].length > 0) {
-                const fotosArray = window.appState.fotos[q.id];
+            if (window.appState.fotos && window.appState.fotos[q.id]) {
+                let fotosDaPergunta = window.appState.fotos[q.id];
+                if (!Array.isArray(fotosDaPergunta)) {
+                    fotosDaPergunta = [fotosDaPergunta];
+                }
 
-                fotosArray.forEach((imgData, fotoIndex) => {
-                    // Pegar dimensões originais da imagem de forma síncrona usando getImageProperties do jsPDF
-                    const imgProps = doc.getImageProperties(imgData);
+                if (fotosDaPergunta.length === 0) return;
 
-                    // Lógica de proporção
-                    const maxImgWidth = pageWidth - (margin * 2);
-                    let imgWidth = maxImgWidth;
-                    let imgHeight = (imgProps.height / imgProps.width) * imgWidth;
+                const colWidth = (pageWidth - (margin * 2) - 6) / 2;
 
-                    // Limitar altura a 140mm
-                    if (imgHeight > 140) {
-                        imgHeight = 140;
-                        imgWidth = (imgProps.width / imgProps.height) * imgHeight;
+                const rows = [];
+                if (fotosDaPergunta.length === 1) {
+                    rows.push([fotosDaPergunta[0]]);
+                } else if (fotosDaPergunta.length === 2) {
+                    rows.push([fotosDaPergunta[0], fotosDaPergunta[1]]);
+                } else {
+                    rows.push([fotosDaPergunta[0], fotosDaPergunta[1]]);
+                    for (let j = 2; j < fotosDaPergunta.length; j += 2) {
+                        rows.push(fotosDaPergunta.slice(j, j + 2));
                     }
+                }
 
-                    // Verificar quebra de página antes de inserir
-                    if (currentY + imgHeight + 15 > doc.internal.pageSize.height - margin) {
+                let isTitlePrinted = false;
+
+                rows.forEach((row) => {
+                    const rowPhotos = row.map(imgData => {
+                        const imgProps = doc.getImageProperties(imgData);
+                        let w, h;
+
+                        if (row.length === 1) {
+                            w = 120;
+                            h = (imgProps.height / imgProps.width) * w;
+
+                            if (h > 90) {
+                                h = 90;
+                                w = (imgProps.width / imgProps.height) * h;
+                            }
+                        } else {
+                            w = colWidth;
+                            h = (imgProps.height / imgProps.width) * w;
+
+                            if (h > 90) {
+                                h = 90;
+                                w = (imgProps.width / imgProps.height) * h;
+                            }
+                        }
+
+                        return { imgData, w, h };
+                    });
+
+                    const maxRowHeight = Math.max(...rowPhotos.map(p => p.h));
+
+                    if (currentY + maxRowHeight + 20 > doc.internal.pageSize.height - margin) {
                         doc.addPage();
                         currentY = 20;
                     }
 
-                    const imgX = (pageWidth - imgWidth) / 2;
-
-                    // Adicionar texto indicando de qual pergunta é a foto (Apenas na primeira foto)
-                    if (fotoIndex === 0) {
+                    if (!isTitlePrinted) {
                         doc.setFontSize(10);
                         doc.setTextColor(...primaryColor);
-                        doc.text(`Fotos da Pergunta ${i+1}:`, margin, currentY);
+                        doc.text(`Foto da Pergunta ${i+1}:`, margin, currentY);
                         currentY += 5;
+                        isTitlePrinted = true;
                     }
 
-                    // Adicionar borda
-                    doc.setDrawColor(200, 200, 200); // Cinza
-                    doc.setLineWidth(0.5);
-                    doc.rect(imgX, currentY, imgWidth, imgHeight);
+                    if (rowPhotos.length === 1) {
+                        const photo = rowPhotos[0];
+                        const imgX = (pageWidth - photo.w) / 2;
 
-                    // Adicionar Imagem
-                    doc.addImage(imgData, 'JPEG', imgX, currentY, imgWidth, imgHeight);
-                    currentY += imgHeight + 5;
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(imgX, currentY, photo.w, photo.h);
 
-                    // Adicionar Legenda
-                    doc.setFontSize(9);
-                    doc.setTextColor(102, 102, 102);
-                    doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY, { align: 'center' });
-                    photoCounter++;
+                        doc.addImage(photo.imgData, 'JPEG', imgX, currentY, photo.w, photo.h);
 
-                    currentY += 8;
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY + photo.h + 5, { align: 'center' });
+                        photoCounter++;
+                    } else {
+                        const p1 = rowPhotos[0];
+                        const p2 = rowPhotos[1];
+
+                        const totalWidth = p1.w + 4 + p2.w;
+                        const startX = (pageWidth - totalWidth) / 2;
+
+                        const x1 = startX;
+                        const x2 = startX + p1.w + 4;
+
+                        // Foto 1
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(x1, currentY, p1.w, p1.h);
+                        doc.addImage(p1.imgData, 'JPEG', x1, currentY, p1.w, p1.h);
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, x1 + (p1.w / 2), currentY + p1.h + 5, { align: 'center' });
+                        photoCounter++;
+
+                        // Foto 2
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(x2, currentY, p2.w, p2.h);
+                        doc.addImage(p2.imgData, 'JPEG', x2, currentY, p2.w, p2.h);
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, x2 + (p2.w / 2), currentY + p2.h + 5, { align: 'center' });
+                        photoCounter++;
+                    }
+
+                    currentY += maxRowHeight + 16;
                 });
-
-                currentY += 7; // extra padding at the end of the group
             }
         });
 
