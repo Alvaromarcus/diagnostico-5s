@@ -167,14 +167,11 @@ function renderQuestions() {
                         <textarea id="obs-${q.id}" placeholder="Observações..."></textarea>
 
                         <div class="photo-upload-container">
-                            <label class="btn-anexar-foto" for="foto-${q.id}">
+                            <label class="btn-anexar-foto" for="foto-${q.id}" id="label-foto-${q.id}">
                                 📷 Anexar foto
                             </label>
                             <input type="file" id="foto-${q.id}" accept="image/*" class="hidden-file-input">
-                            <div class="thumbnail-container hidden" id="thumb-container-${q.id}">
-                                <img id="thumb-img-${q.id}" src="" alt="Thumbnail">
-                                <button type="button" class="btn-remove-foto" id="btn-remove-foto-${q.id}">✕</button>
-                            </div>
+                            <div class="thumbnails-wrapper" id="thumbnails-wrapper-${q.id}"></div>
                         </div>
                     </div>
                 </div>
@@ -234,38 +231,64 @@ function renderQuestions() {
 
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-                        fotos[qId] = compressedBase64;
+                        if (!fotos[qId]) fotos[qId] = [];
+                        if (fotos[qId].length < 3) {
+                            fotos[qId].push(compressedBase64);
+                        }
 
-                        // Show thumbnail
-                        const thumbContainer = document.getElementById(`thumb-container-${qId}`);
-                        const thumbImg = document.getElementById(`thumb-img-${qId}`);
-                        thumbImg.src = compressedBase64;
-                        thumbContainer.classList.remove('hidden');
+                        renderThumbnails(qId);
                     };
                     img.src = base64String;
                 };
                 reader.readAsDataURL(file);
+
+                // Clear input to allow uploading the same file again if removed
+                e.target.value = '';
             }
         });
     });
+}
 
-    // Event listeners for remove photo buttons
-    document.querySelectorAll('.btn-remove-foto').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const qId = e.target.id.replace('btn-remove-foto-', '');
+function renderThumbnails(qId) {
+    const wrapper = document.getElementById(`thumbnails-wrapper-${qId}`);
+    const label = document.getElementById(`label-foto-${qId}`);
+    wrapper.innerHTML = '';
 
-            // Remove from state
-            delete fotos[qId];
+    if (!fotos[qId]) fotos[qId] = [];
 
-            // Clear input
-            document.getElementById(`foto-${qId}`).value = '';
+    fotos[qId].forEach((fotoBase64, index) => {
+        const thumbContainer = document.createElement('div');
+        thumbContainer.className = 'thumbnail-container';
 
-            // Hide thumbnail
-            const thumbContainer = document.getElementById(`thumb-container-${qId}`);
-            thumbContainer.classList.add('hidden');
-            document.getElementById(`thumb-img-${qId}`).src = '';
+        const img = document.createElement('img');
+        img.src = fotoBase64;
+        img.alt = 'Thumbnail';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-remove-foto';
+        removeBtn.innerHTML = '✕';
+        removeBtn.addEventListener('click', () => {
+            fotos[qId].splice(index, 1);
+            renderThumbnails(qId);
         });
+
+        thumbContainer.appendChild(img);
+        thumbContainer.appendChild(removeBtn);
+        wrapper.appendChild(thumbContainer);
     });
+
+    const count = fotos[qId].length;
+    if (count >= 3) {
+        label.style.display = 'none';
+    } else {
+        label.style.display = 'inline-block';
+        if (count > 0) {
+            label.innerHTML = `📷 Anexar foto (${count}/3)`;
+        } else {
+            label.innerHTML = `📷 Anexar foto`;
+        }
+    }
 }
 
 function updateProgress() {
@@ -458,10 +481,12 @@ function handleReset() {
         document.querySelectorAll('input[type="file"][id^="foto-"]').forEach(input => {
             input.value = '';
         });
-        document.querySelectorAll('.thumbnail-container').forEach(container => {
-            container.classList.add('hidden');
-            const img = container.querySelector('img');
-            if (img) img.src = '';
+        document.querySelectorAll('.thumbnails-wrapper').forEach(wrapper => {
+            wrapper.innerHTML = '';
+        });
+        document.querySelectorAll('.btn-anexar-foto').forEach(label => {
+            label.style.display = 'inline-block';
+            label.innerHTML = '📷 Anexar foto';
         });
         document.getElementById('turno').value = '';
         document.getElementById('setor').value = '';
