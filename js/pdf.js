@@ -218,53 +218,59 @@ function generatePDF() {
 
         // Inserir fotos do Senso atual
         senso.perguntas.forEach((q, i) => {
-            if (window.appState.fotos && window.appState.fotos[q.id]) {
-                const imgData = window.appState.fotos[q.id];
+            if (window.appState.fotos && window.appState.fotos[q.id] && window.appState.fotos[q.id].length > 0) {
+                const fotosArray = window.appState.fotos[q.id];
 
-                // Pegar dimensões originais da imagem de forma síncrona usando getImageProperties do jsPDF
-                const imgProps = doc.getImageProperties(imgData);
+                fotosArray.forEach((imgData, fotoIndex) => {
+                    // Pegar dimensões originais da imagem de forma síncrona usando getImageProperties do jsPDF
+                    const imgProps = doc.getImageProperties(imgData);
 
-                // Lógica de proporção
-                const maxImgWidth = pageWidth - (margin * 2);
-                let imgWidth = maxImgWidth;
-                let imgHeight = (imgProps.height / imgProps.width) * imgWidth;
+                    // Lógica de proporção
+                    const maxImgWidth = pageWidth - (margin * 2);
+                    let imgWidth = maxImgWidth;
+                    let imgHeight = (imgProps.height / imgProps.width) * imgWidth;
 
-                // Limitar altura a 140mm
-                if (imgHeight > 140) {
-                    imgHeight = 140;
-                    imgWidth = (imgProps.width / imgProps.height) * imgHeight;
-                }
+                    // Limitar altura a 140mm
+                    if (imgHeight > 140) {
+                        imgHeight = 140;
+                        imgWidth = (imgProps.width / imgProps.height) * imgHeight;
+                    }
 
-                // Verificar quebra de página antes de inserir
-                if (currentY + imgHeight + 15 > doc.internal.pageSize.height - margin) {
-                    doc.addPage();
-                    currentY = 20;
-                }
+                    // Verificar quebra de página antes de inserir
+                    if (currentY + imgHeight + 15 > doc.internal.pageSize.height - margin) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
 
-                const imgX = (pageWidth - imgWidth) / 2;
+                    const imgX = (pageWidth - imgWidth) / 2;
 
-                // Adicionar texto indicando de qual pergunta é a foto
-                doc.setFontSize(10);
-                doc.setTextColor(...primaryColor);
-                doc.text(`Foto da Pergunta ${i+1}:`, margin, currentY);
-                currentY += 5;
+                    // Adicionar texto indicando de qual pergunta é a foto (Apenas na primeira foto)
+                    if (fotoIndex === 0) {
+                        doc.setFontSize(10);
+                        doc.setTextColor(...primaryColor);
+                        doc.text(`Fotos da Pergunta ${i+1}:`, margin, currentY);
+                        currentY += 5;
+                    }
 
-                // Adicionar borda
-                doc.setDrawColor(200, 200, 200); // Cinza
-                doc.setLineWidth(0.5);
-                doc.rect(imgX, currentY, imgWidth, imgHeight);
+                    // Adicionar borda
+                    doc.setDrawColor(200, 200, 200); // Cinza
+                    doc.setLineWidth(0.5);
+                    doc.rect(imgX, currentY, imgWidth, imgHeight);
 
-                // Adicionar Imagem
-                doc.addImage(imgData, 'PNG', imgX, currentY, imgWidth, imgHeight);
-                currentY += imgHeight + 5;
+                    // Adicionar Imagem
+                    doc.addImage(imgData, 'JPEG', imgX, currentY, imgWidth, imgHeight);
+                    currentY += imgHeight + 5;
 
-                // Adicionar Legenda
-                doc.setFontSize(9);
-                doc.setTextColor(102, 102, 102);
-                doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY, { align: 'center' });
-                photoCounter++;
+                    // Adicionar Legenda
+                    doc.setFontSize(9);
+                    doc.setTextColor(102, 102, 102);
+                    doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY, { align: 'center' });
+                    photoCounter++;
 
-                currentY += 15;
+                    currentY += 8;
+                });
+
+                currentY += 7; // extra padding at the end of the group
             }
         });
 
