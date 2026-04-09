@@ -656,6 +656,7 @@ td input, td select {
     #action-plan-table td {
         display: block;
         width: 100%;
+        box-sizing: border-box;
     }
 
     #action-plan-table tr {
@@ -666,23 +667,33 @@ td input, td select {
         background: #ffffff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         position: relative;
+        height: auto;
     }
 
     #action-plan-table td {
         border: none;
-        padding: 0.5rem 0;
-        display: block;
+        padding: 0.4rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
     #action-plan-table td::before {
         content: attr(data-label);
         font-weight: bold;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--text-light);
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    #action-plan-table td input,
+    #action-plan-table td select {
+        width: 100%;
+        min-width: unset;
     }
 
     #action-plan-table td.action-td {
-        display: flex;
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
