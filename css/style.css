@@ -473,16 +473,51 @@ input:focus, select:focus, textarea:focus {
 .table-responsive {
     overflow-x: auto;
     margin-bottom: 1rem;
+    width: 100%;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+}
+
+#action-plan-table th:nth-child(1),
+#action-plan-table td:nth-child(1) { min-width: 40px; }
+
+#action-plan-table th:nth-child(2),
+#action-plan-table td:nth-child(2),
+#action-plan-table th:nth-child(3),
+#action-plan-table td:nth-child(3),
+#action-plan-table th:nth-child(7),
+#action-plan-table td:nth-child(7) { min-width: 160px; }
+
+#action-plan-table th:nth-child(4),
+#action-plan-table td:nth-child(4),
+#action-plan-table th:nth-child(6),
+#action-plan-table td:nth-child(6) { min-width: 120px; }
+
+#action-plan-table th:nth-child(5),
+#action-plan-table td:nth-child(5) { min-width: 130px; }
+
+#action-plan-table th:nth-child(8),
+#action-plan-table td:nth-child(8) { min-width: 120px; }
+
+#action-plan-table th:nth-child(9),
+#action-plan-table td:nth-child(9) { min-width: 100px; }
+
+#action-plan-table th:nth-child(10),
+#action-plan-table td:nth-child(10) { min-width: 120px; }
+
+#action-plan-table th:nth-child(11),
+#action-plan-table td:nth-child(11) { min-width: 40px; }
+
+
+#action-plan-table tr {
+    min-height: 52px;
 }
 
 th, td {
-    padding: 0.75rem;
+    padding: 8px;
     border: 1px solid var(--border-color);
     text-align: left;
 }
@@ -496,9 +531,15 @@ th {
 
 td input, td select {
     width: 100%;
-    padding: 0.5rem;
+    min-width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 6px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: white;
 }
 
 .btn-remove {
