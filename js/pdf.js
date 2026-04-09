@@ -209,52 +209,117 @@ function generatePDF() {
         // Inserir fotos do Senso atual
         senso.perguntas.forEach((q, i) => {
             if (window.appState.fotos && window.appState.fotos[q.id]) {
-                const imgData = window.appState.fotos[q.id];
-
-                // Pegar dimensões originais da imagem de forma síncrona usando getImageProperties do jsPDF
-                const imgProps = doc.getImageProperties(imgData);
-
-                // Lógica de proporção
-                const maxImgWidth = pageWidth - (margin * 2);
-                let imgWidth = maxImgWidth;
-                let imgHeight = (imgProps.height / imgProps.width) * imgWidth;
-
-                // Limitar altura a 140mm
-                if (imgHeight > 140) {
-                    imgHeight = 140;
-                    imgWidth = (imgProps.width / imgProps.height) * imgHeight;
+                let fotosDaPergunta = window.appState.fotos[q.id];
+                if (!Array.isArray(fotosDaPergunta)) {
+                    fotosDaPergunta = [fotosDaPergunta];
                 }
 
-                // Verificar quebra de página antes de inserir
-                if (currentY + imgHeight + 15 > doc.internal.pageSize.height - margin) {
-                    doc.addPage();
-                    currentY = 20;
+                if (fotosDaPergunta.length === 0) return;
+
+                const colWidth = (pageWidth - (margin * 2) - 6) / 2;
+
+                const rows = [];
+                if (fotosDaPergunta.length === 1) {
+                    rows.push([fotosDaPergunta[0]]);
+                } else if (fotosDaPergunta.length === 2) {
+                    rows.push([fotosDaPergunta[0], fotosDaPergunta[1]]);
+                } else {
+                    rows.push([fotosDaPergunta[0], fotosDaPergunta[1]]);
+                    for (let j = 2; j < fotosDaPergunta.length; j += 2) {
+                        rows.push(fotosDaPergunta.slice(j, j + 2));
+                    }
                 }
 
-                const imgX = (pageWidth - imgWidth) / 2;
+                let isTitlePrinted = false;
 
-                // Adicionar texto indicando de qual pergunta é a foto
-                doc.setFontSize(10);
-                doc.setTextColor(...primaryColor);
-                doc.text(`Foto da Pergunta ${i+1}:`, margin, currentY);
-                currentY += 5;
+                rows.forEach((row) => {
+                    const rowPhotos = row.map(imgData => {
+                        const imgProps = doc.getImageProperties(imgData);
+                        let w, h;
 
-                // Adicionar borda
-                doc.setDrawColor(200, 200, 200); // Cinza
-                doc.setLineWidth(0.5);
-                doc.rect(imgX, currentY, imgWidth, imgHeight);
+                        if (row.length === 1) {
+                            w = 120;
+                            h = (imgProps.height / imgProps.width) * w;
 
-                // Adicionar Imagem
-                doc.addImage(imgData, 'PNG', imgX, currentY, imgWidth, imgHeight);
-                currentY += imgHeight + 5;
+                            if (h > 90) {
+                                h = 90;
+                                w = (imgProps.width / imgProps.height) * h;
+                            }
+                        } else {
+                            w = colWidth;
+                            h = (imgProps.height / imgProps.width) * w;
 
-                // Adicionar Legenda
-                doc.setFontSize(9);
-                doc.setTextColor(102, 102, 102);
-                doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY, { align: 'center' });
-                photoCounter++;
+                            if (h > 90) {
+                                h = 90;
+                                w = (imgProps.width / imgProps.height) * h;
+                            }
+                        }
 
-                currentY += 15;
+                        return { imgData, w, h };
+                    });
+
+                    const maxRowHeight = Math.max(...rowPhotos.map(p => p.h));
+
+                    if (currentY + maxRowHeight + 20 > doc.internal.pageSize.height - margin) {
+                        doc.addPage();
+                        currentY = 20;
+                    }
+
+                    if (!isTitlePrinted) {
+                        doc.setFontSize(10);
+                        doc.setTextColor(...primaryColor);
+                        doc.text(`Foto da Pergunta ${i+1}:`, margin, currentY);
+                        currentY += 5;
+                        isTitlePrinted = true;
+                    }
+
+                    if (rowPhotos.length === 1) {
+                        const photo = rowPhotos[0];
+                        const imgX = (pageWidth - photo.w) / 2;
+
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(imgX, currentY, photo.w, photo.h);
+
+                        doc.addImage(photo.imgData, 'JPEG', imgX, currentY, photo.w, photo.h);
+
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, pageWidth / 2, currentY + photo.h + 5, { align: 'center' });
+                        photoCounter++;
+                    } else {
+                        const p1 = rowPhotos[0];
+                        const p2 = rowPhotos[1];
+
+                        const totalWidth = p1.w + 4 + p2.w;
+                        const startX = (pageWidth - totalWidth) / 2;
+
+                        const x1 = startX;
+                        const x2 = startX + p1.w + 4;
+
+                        // Foto 1
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(x1, currentY, p1.w, p1.h);
+                        doc.addImage(p1.imgData, 'JPEG', x1, currentY, p1.w, p1.h);
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, x1 + (p1.w / 2), currentY + p1.h + 5, { align: 'center' });
+                        photoCounter++;
+
+                        // Foto 2
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.rect(x2, currentY, p2.w, p2.h);
+                        doc.addImage(p2.imgData, 'JPEG', x2, currentY, p2.w, p2.h);
+                        doc.setFontSize(9);
+                        doc.setTextColor(102, 102, 102);
+                        doc.text(`Evidência - ${String(photoCounter).padStart(2, '0')}`, x2 + (p2.w / 2), currentY + p2.h + 5, { align: 'center' });
+                        photoCounter++;
+                    }
+
+                    currentY += maxRowHeight + 16;
+                });
             }
         });
 
