@@ -2,6 +2,13 @@
 
 Ferramenta web para avaliação de maturidade do Programa 5S (Lean Manufacturing).
 
+## Módulos
+
+- **Diagnóstico 5S** (`index.html`): avaliação de maturidade, radar, plano de ação 5W2H e PDF.
+- **Mapeamento do Fluxo de Valor – MFV** (`mfv.html`): formulário em 3 passos, cálculo automático de
+  tempo disponível, takt time, dias de estoque, tempo de ciclo total e lead time total; mapa do estado
+  atual em SVG com pan/zoom (pinça no celular) e visão em lista; exportação em SVG, PNG e **PDF em folha A3 paisagem**.
+
 ## Deploy no Netlify (gratuito)
 
 1. Faça fork ou clone deste repositório no GitHub
@@ -21,5 +28,5 @@ Ferramenta web para avaliação de maturidade do Programa 5S (Lean Manufacturing
 
 - HTML5 + CSS3 + JavaScript (vanilla, sem framework)
 - Chart.js (radar chart dos resultados)
-- jsPDF + jsPDF-AutoTable (geração de PDF)
+- jsPDF + jsPDF-AutoTable (geração de PDF; o MFV exporta sempre em A3 paisagem)
 - Hospedagem: Netlify (plano gratuito)

@@ -1,0 +1,4 @@
+# Credenciais locais – nunca versionar
+.github-token
+*.token
+.env
