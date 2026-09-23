@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapeamento do Fluxo de Valor (MFV)</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/mfv.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="brand">Plataforma <span>Lean</span></div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Diagnóstico 5S</a>
+      <a href="mfv.html" class="active" aria-current="page">Mapeamento do Fluxo de Valor (MFV)</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="page-head-inner">
+    <h1>Mapeamento do Fluxo de Valor</h1>
+    <p>Mapa do estado atual, com takt time e lead time calculados</p>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- FORM -->
+  <section class="card form-col" aria-label="Dados do mapeamento">
+    <div class="steps" role="tablist">
+      <button class="step-btn active" data-step="0" role="tab"><span class="n">1</span>Dados gerais e demanda</button>
+      <button class="step-btn" data-step="1" role="tab"><span class="n">2</span>Cliente, PCP e fornecedor</button>
+      <button class="step-btn" data-step="2" role="tab"><span class="n">3</span>Processos e estoques</button>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-panel" data-panel="0">
+      <h2>Dados gerais e demanda</h2>
+      <p class="lead">Estes dados definem o tempo disponível e o takt time.</p>
+      <fieldset>
+        <legend>Identificação</legend>
+        <div class="grid2">
+          <div class="field"><label for="f-empresa">Empresa</label><input id="f-empresa" data-k="empresa" type="text"></div>
+          <div class="field"><label for="f-familia">Família de produtos</label><input id="f-familia" data-k="familia" type="text"></div>
+          <div class="field"><label for="f-data">Data do mapeamento</label><input id="f-data" data-k="data" type="date"></div>
+          <div class="field"><label for="f-resp">Responsável</label><input id="f-resp" data-k="responsavel" type="text"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Turnos e horários</legend>
+        <div class="grid2">
+          <div class="field"><label for="f-inicio">Início da jornada</label><input id="f-inicio" data-k="inicio" type="time"></div>
+          <div class="field"><label for="f-fim">Fim da jornada</label><input id="f-fim" data-k="fim" type="time"></div>
+          <div class="field"><label for="f-turnos">Turnos por dia</label><input id="f-turnos" data-k="turnos" data-num type="number" min="1" max="3" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="f-pausas">Pausas por dia (min)</label><input id="f-pausas" data-k="pausas" data-num type="number" min="0" inputmode="numeric"><div class="hint">Almoço, café, DDS…</div></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Demanda</legend>
+        <div class="seg" role="group" aria-label="Tipo de demanda">
+          <button type="button" data-dmodo="mensal">Mensal</button>
+          <button type="button" data-dmodo="diaria">Diária</button>
+        </div>
+        <div class="grid2">
+          <div class="field" id="wrap-dmes"><label for="f-dmes">Demanda (un/mês)</label><input id="f-dmes" data-k="demandaMensal" data-num type="number" min="0" inputmode="decimal"></div>
+          <div class="field" id="wrap-dias"><label for="f-dias">Dias úteis no mês</label><input id="f-dias" data-k="diasUteis" data-num type="number" min="1" max="31" inputmode="numeric"></div>
+          <div class="field" id="wrap-ddia"><label for="f-ddia">Demanda (un/dia)</label><input id="f-ddia" data-k="demandaDiaria" data-num type="number" min="0" inputmode="decimal"></div>
+        </div>
+      </fieldset>
+      <div class="calc-note" id="calc-note"></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-panel" data-panel="1" hidden>
+      <h2>Cliente, PCP e fornecedor</h2>
+      <p class="lead">O nível superior do mapa: o fluxo de informação.</p>
+      <fieldset>
+        <legend>Cliente</legend>
+        <div class="grid2">
+          <div class="field full"><label for="f-cli">Nome do cliente</label><input id="f-cli" data-k="cliente.nome" type="text"></div>
+          <div class="field"><label for="f-cli-ped">Frequência de pedidos</label>
+            <select id="f-cli-ped" data-k="cliente.freqPedido"><option>Diário</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option><option>Sob demanda</option><option>Emergencial</option></select></div>
+          <div class="field"><label for="f-cli-ent">Frequência de entrega</label>
+            <select id="f-cli-ent" data-k="cliente.freqEntrega"><option>Caminhão diário</option><option>2× por semana</option><option>Caminhão semanal</option><option>Quinzenal</option><option>Sob demanda</option></select></div>
+          <div class="field full"><label for="f-pa">Estoque de produto acabado (un)</label><input id="f-pa" data-k="cliente.estoquePA" data-num type="number" min="0" inputmode="decimal"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>PCP</legend>
+        <div class="grid2">
+          <div class="field"><label for="f-pcp-em">Emissão de ordens</label>
+            <select id="f-pcp-em" data-k="pcp.emissao"><option>OF a cada pedido</option><option>Programação diária</option><option>Programação semanal</option><option>Programação mensal</option></select></div>
+          <div class="field"><label for="f-pcp-com">Comunicação com a fábrica</label>
+            <select id="f-pcp-com" data-k="pcp.comunicacao"><option>Instrução direta</option><option>Via encarregado</option><option>Sistema ERP</option><option>Quadro de programação</option></select></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Fornecedor</legend>
+        <div class="grid2">
+          <div class="field full"><label for="f-forn">Fornecedor principal</label><input id="f-forn" data-k="fornecedor.nome" type="text"></div>
+          <div class="field"><label for="f-forn-lt">Lead time de reposição (dias)</label><input id="f-forn-lt" data-k="fornecedor.leadTime" data-num type="number" min="0" inputmode="decimal"></div>
+          <div class="field"><label for="f-forn-fr">Frequência de entrega</label>
+            <select id="f-forn-fr" data-k="fornecedor.freqEntrega"><option>Sob demanda</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option><option>Lote programado</option></select></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-panel" data-panel="2" hidden>
+      <h2>Processos e estoques</h2>
+      <p class="lead">Cadastre os processos na ordem do fluxo. O estoque informado é o que fica na fila antes de cada processo.</p>
+      <div class="proc-list" id="proc-list"></div>
+      <button type="button" class="btn btn-accent btn-block" id="btn-add-proc">+ Adicionar processo</button>
+    </div>
+
+    <div class="wizard-nav">
+      <button type="button" class="btn btn-ghost" id="btn-prev">← Voltar</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn btn-danger-ghost" id="btn-clear">Limpar</button>
+        <button type="button" class="btn btn-primary" id="btn-next">Próximo →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREVIEW -->
+  <section class="preview-col" aria-label="Mapa gerado">
+    <div class="kpis" id="kpis"></div>
+    <div class="card map-card">
+      <div class="map-toolbar">
+        <h2>Mapa do estado atual</h2>
+        <div class="seg view-switch" role="group" aria-label="Modo de visualização">
+          <button type="button" data-view="diagram" class="on">Diagrama</button>
+          <button type="button" data-view="list">Lista</button>
+        </div>
+        <div class="export-row">
+          <button type="button" class="btn btn-ghost" data-export="svg">SVG</button>
+          <button type="button" class="btn btn-ghost" data-export="png">PNG</button>
+          <button type="button" class="btn btn-primary" data-export="pdf">PDF A3</button>
+        </div>
+      </div>
+      <div class="map-stage" id="map-stage">
+        <svg id="mfv-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mapa do fluxo de valor"></svg>
+        <div class="gesture-hint" id="gesture-hint">Arraste para mover · use pinça para zoom</div>
+        <div class="zoom-level" id="zoom-level">100%</div>
+        <div class="zoom-ctrls">
+          <button type="button" id="z-in" aria-label="Aproximar">+</button>
+          <button type="button" id="z-out" aria-label="Afastar">−</button>
+          <button type="button" id="z-fit" aria-label="Ajustar à tela">⤢</button>
+          <button type="button" id="z-reset" aria-label="Resetar visualização">↺</button>
+        </div>
+      </div>
+      <div class="flow-list" id="flow-list" hidden></div>
+      <div class="status" id="status">Arraste o mapa para mover. Use Ctrl + roda do mouse ou os botões para zoom.</div>
+    </div>
+  </section>
+</main>
+
+<footer>Desenvolvido por <a href="https://www.linkedin.com/in/alvaromarcus/" target="_blank" rel="noopener noreferrer">Álvaro S. Marcus</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/mfv.js"></script>
+</body>
+</html>
