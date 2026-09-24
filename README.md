@@ -21,7 +21,7 @@ Ferramenta web para avaliação de maturidade do Programa 5S (Lean Manufacturing
 
 ### Domínio personalizado (opcional)
 - No Netlify: Site settings → Domain management → Add custom domain
-- Você pode usar um domínio gratuito do tipo `diagnostico5s.netlify.app`
+- Você pode usar um domínio gratuito do tipo `diagnostico-5s.netlify.app`
   alterando o nome nas configurações do site no Netlify.
 
 ## Tecnologias utilizadas
