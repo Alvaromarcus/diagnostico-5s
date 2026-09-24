@@ -58,17 +58,21 @@
         banner.querySelector('.consent-decline').addEventListener('click', function () { setChoice('denied'); removeGACookies(); hide(); });
         document.body.appendChild(banner);
     }
-    function show() { if (!banner) buildBanner(); banner.hidden = false; banner.querySelector('.consent-accept').focus({ preventScroll: true }); }
+    function show(fromUser) {
+        if (!banner) buildBanner();
+        banner.hidden = false;
+        if (fromUser === true) banner.querySelector('.consent-accept').focus({ preventScroll: true });
+    }
     function hide() { if (banner) banner.hidden = true; }
 
-    window.abrirPreferenciasCookies = show;
+    window.abrirPreferenciasCookies = function () { show(true); };
 
     function init() {
         var choice = getChoice();
         if (choice === 'granted') loadGA();
         else if (choice !== 'denied') show();
         document.querySelectorAll('[data-consent-open]').forEach(function (el) {
-            el.addEventListener('click', function (e) { e.preventDefault(); show(); });
+            el.addEventListener('click', function (e) { e.preventDefault(); show(true); });
         });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
